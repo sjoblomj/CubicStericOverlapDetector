@@ -18,8 +18,9 @@
 
 package cubicstericoverlapdetector;
 
-import java.io.FileNotFoundException;
+import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +28,6 @@ import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import cubicstericoverlapdetector.HashEntry.Pair;
 
@@ -306,13 +306,11 @@ public class Utils {
                                    Double[] dmin,
                                    Double[] dmax) {
 
-        Scanner in = null;
+        String line;
+        BufferedReader br = null;
         try {
-            // Read the file line by line
-            in = new Scanner(new FileReader(filename));
-            while(in.hasNextLine()) {
-                String line = in.nextLine();
-
+            br = new BufferedReader(new FileReader(filename));
+            while ((line = br.readLine()) != null) {
                 String fstword = line.split("\\s+")[0];
                 // Only parse lines beginning with "ATOM" or "HEATM"
                 if(!fstword.equals("ATOM") && !fstword.equals("HETATM"))
@@ -357,12 +355,11 @@ public class Utils {
                 // Add atom to the ArrayList
                 arr.add(atom);
             }
-        } catch(FileNotFoundException e) {
+            br.close();
+        } catch (NumberFormatException e) {
             log("Could not open file " + filename);
-        } finally {
-            if(in != null) {
-                in.close();
-            }
+        } catch (IOException e) {
+            log("Could not open file " + filename);
         }
     }
 
@@ -425,12 +422,16 @@ public class Utils {
         String output = "Licensed under GPL 2.0 or later\n\n";
 
         // Read the file line by line
+        String line;
+        BufferedReader br = null;
         try {
-            Scanner in = new Scanner(new FileReader(LICENSEFILE));
-            while(in.hasNextLine())
-                output += in.nextLine() + "\n";
-            in.close();
-        } catch(FileNotFoundException e) {
+            br = new BufferedReader(new FileReader(LICENSEFILE));
+            while ((line = br.readLine()) != null)
+                output += line + "\n";
+            br.close();
+        } catch (NumberFormatException e) {
+            output += "Could not open file " + LICENSEFILE;
+        } catch (IOException e) {
             output += "Could not open file " + LICENSEFILE;
         }
         return output;
